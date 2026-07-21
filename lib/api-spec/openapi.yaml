@@ -3,20 +3,23 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Rainbow Loom Vibe Store API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product and color availability operations
+  - name: orders
+    description: Order management operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +27,141 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: getProducts
+      tags: [products]
+      summary: Get all products with their color availability
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{productId}/colors:
+    patch:
+      operationId: updateProductColors
+      tags: [products]
+      summary: Admin - update color availability for a product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColorAvailabilityUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
+  /orders:
+    get:
+      operationId: getOrders
+      tags: [orders]
+      summary: Admin - get all orders
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Place a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get a single order by ID
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [orders]
+      summary: Admin login with passcode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCredentials"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminToken"
+        "401":
+          description: Wrong passcode
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +172,125 @@ components:
       required:
         - status
 
+    ColorAvailability:
+      type: object
+      properties:
+        color:
+          type: string
+          enum: [red, orange, green, blue, purple, pink, black]
+        available:
+          type: boolean
+      required:
+        - color
+        - available
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        colors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColorAvailability"
+      required:
+        - id
+        - name
+        - price
+        - colors
+
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+        color:
+          type: string
+        price:
+          type: number
+      required:
+        - productId
+        - productName
+        - color
+        - price
+
+    OrderInput:
+      type: object
+      properties:
+        customerName:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+      required:
+        - customerName
+        - items
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        orderNumber:
+          type: string
+        customerName:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        total:
+          type: number
+        createdAt:
+          type: string
+      required:
+        - id
+        - orderNumber
+        - customerName
+        - items
+        - total
+        - createdAt
+
+    ColorAvailabilityUpdate:
+      type: object
+      properties:
+        colors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColorAvailability"
+      required:
+        - colors
+
+    AdminCredentials:
+      type: object
+      properties:
+        passcode:
+          type: string
+      required:
+        - passcode
+
+    AdminToken:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+      required:
+        - success
+        - token
+
+    ErrorResult:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
