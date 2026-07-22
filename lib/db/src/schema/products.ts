@@ -4,6 +4,7 @@ export const productsTable = pgTable("products", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   price: real("price").notNull(),
+  available: boolean("available").notNull().default(true),
 });
 
 export const productColorsTable = pgTable("product_colors", {

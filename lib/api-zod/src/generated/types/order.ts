@@ -11,7 +11,10 @@ export interface Order {
   id: string;
   orderNumber: string;
   customerName: string;
+  customerEmail: string;
   items: CartItem[];
   total: number;
+  status: string;
+  estimatedCompletion?: string;
   createdAt: string;
 }

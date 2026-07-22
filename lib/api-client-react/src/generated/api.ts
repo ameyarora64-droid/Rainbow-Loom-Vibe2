@@ -24,10 +24,14 @@ import type {
   AdminToken,
   ColorAvailabilityUpdate,
   ErrorResult,
+  GlobalColorUpdate,
   HealthStatus,
   Order,
   OrderInput,
-  Product
+  Product,
+  ProductAvailableUpdate,
+  StartOrderBody,
+  SuccessResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -283,6 +287,149 @@ export const useUpdateProductColors = <TError = ErrorType<ErrorResult>,
       return useMutation(getUpdateProductColorsMutationOptions(options));
     }
 
+export const getUpdateProductAvailableUrl = (productId: string,) => {
+
+
+
+
+  return `/api/products/${productId}/available`
+}
+
+/**
+ * @summary Admin - toggle a product available/unavailable
+ */
+export const updateProductAvailable = async (productId: string,
+    productAvailableUpdate: ProductAvailableUpdate, options?: RequestInit): Promise<Product> => {
+
+  return customFetch<Product>(getUpdateProductAvailableUrl(productId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(productAvailableUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateProductAvailableMutationOptions = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProductAvailable>>, TError,{productId: string;data: BodyType<ProductAvailableUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateProductAvailable>>, TError,{productId: string;data: BodyType<ProductAvailableUpdate>}, TContext> => {
+
+const mutationKey = ['updateProductAvailable'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProductAvailable>>, {productId: string;data: BodyType<ProductAvailableUpdate>}> = (props) => {
+          const {productId,data} = props ?? {};
+
+          return  updateProductAvailable(productId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateProductAvailableMutationResult = NonNullable<Awaited<ReturnType<typeof updateProductAvailable>>>
+    export type UpdateProductAvailableMutationBody = BodyType<ProductAvailableUpdate>
+    export type UpdateProductAvailableMutationError = ErrorType<ErrorResult>
+
+    /**
+ * @summary Admin - toggle a product available/unavailable
+ */
+export const useUpdateProductAvailable = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProductAvailable>>, TError,{productId: string;data: BodyType<ProductAvailableUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateProductAvailable>>,
+        TError,
+        {productId: string;data: BodyType<ProductAvailableUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateProductAvailableMutationOptions(options));
+    }
+
+export const getUpdateGlobalColorUrl = () => {
+
+
+
+
+  return `/api/colors/global`
+}
+
+/**
+ * @summary Admin - enable or disable a color across ALL products
+ */
+export const updateGlobalColor = async (globalColorUpdate: GlobalColorUpdate, options?: RequestInit): Promise<SuccessResult> => {
+
+  return customFetch<SuccessResult>(getUpdateGlobalColorUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(globalColorUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateGlobalColorMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGlobalColor>>, TError,{data: BodyType<GlobalColorUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateGlobalColor>>, TError,{data: BodyType<GlobalColorUpdate>}, TContext> => {
+
+const mutationKey = ['updateGlobalColor'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateGlobalColor>>, {data: BodyType<GlobalColorUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateGlobalColor(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateGlobalColorMutationResult = NonNullable<Awaited<ReturnType<typeof updateGlobalColor>>>
+    export type UpdateGlobalColorMutationBody = BodyType<GlobalColorUpdate>
+    export type UpdateGlobalColorMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Admin - enable or disable a color across ALL products
+ */
+export const useUpdateGlobalColor = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGlobalColor>>, TError,{data: BodyType<GlobalColorUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateGlobalColor>>,
+        TError,
+        {data: BodyType<GlobalColorUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateGlobalColorMutationOptions(options));
+    }
+
 export const getGetOrdersUrl = () => {
 
 
@@ -507,6 +654,220 @@ export function useGetOrder<TData = Awaited<ReturnType<typeof getOrder>>, TError
 
 
 
+
+export const getHoldOrderUrl = (orderId: string,) => {
+
+
+
+
+  return `/api/orders/${orderId}/hold`
+}
+
+/**
+ * @summary Admin - put an order on hold and email customer
+ */
+export const holdOrder = async (orderId: string, options?: RequestInit): Promise<Order> => {
+
+  return customFetch<Order>(getHoldOrderUrl(orderId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getHoldOrderMutationOptions = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof holdOrder>>, TError,{orderId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof holdOrder>>, TError,{orderId: string}, TContext> => {
+
+const mutationKey = ['holdOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof holdOrder>>, {orderId: string}> = (props) => {
+          const {orderId} = props ?? {};
+
+          return  holdOrder(orderId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HoldOrderMutationResult = NonNullable<Awaited<ReturnType<typeof holdOrder>>>
+
+    export type HoldOrderMutationError = ErrorType<ErrorResult>
+
+    /**
+ * @summary Admin - put an order on hold and email customer
+ */
+export const useHoldOrder = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof holdOrder>>, TError,{orderId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof holdOrder>>,
+        TError,
+        {orderId: string},
+        TContext
+      > => {
+      return useMutation(getHoldOrderMutationOptions(options));
+    }
+
+export const getUnholdOrderUrl = (orderId: string,) => {
+
+
+
+
+  return `/api/orders/${orderId}/unhold`
+}
+
+/**
+ * @summary Admin - remove hold and email customer their order is back in progress
+ */
+export const unholdOrder = async (orderId: string, options?: RequestInit): Promise<Order> => {
+
+  return customFetch<Order>(getUnholdOrderUrl(orderId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getUnholdOrderMutationOptions = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unholdOrder>>, TError,{orderId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof unholdOrder>>, TError,{orderId: string}, TContext> => {
+
+const mutationKey = ['unholdOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unholdOrder>>, {orderId: string}> = (props) => {
+          const {orderId} = props ?? {};
+
+          return  unholdOrder(orderId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnholdOrderMutationResult = NonNullable<Awaited<ReturnType<typeof unholdOrder>>>
+
+    export type UnholdOrderMutationError = ErrorType<ErrorResult>
+
+    /**
+ * @summary Admin - remove hold and email customer their order is back in progress
+ */
+export const useUnholdOrder = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unholdOrder>>, TError,{orderId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof unholdOrder>>,
+        TError,
+        {orderId: string},
+        TContext
+      > => {
+      return useMutation(getUnholdOrderMutationOptions(options));
+    }
+
+export const getStartOrderUrl = (orderId: string,) => {
+
+
+
+
+  return `/api/orders/${orderId}/start`
+}
+
+/**
+ * @summary Admin - start making an order with time estimate, email customer
+ */
+export const startOrder = async (orderId: string,
+    startOrderBody: StartOrderBody, options?: RequestInit): Promise<Order> => {
+
+  return customFetch<Order>(getStartOrderUrl(orderId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(startOrderBody)
+  }
+);}
+
+
+
+
+
+export const getStartOrderMutationOptions = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startOrder>>, TError,{orderId: string;data: BodyType<StartOrderBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startOrder>>, TError,{orderId: string;data: BodyType<StartOrderBody>}, TContext> => {
+
+const mutationKey = ['startOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startOrder>>, {orderId: string;data: BodyType<StartOrderBody>}> = (props) => {
+          const {orderId,data} = props ?? {};
+
+          return  startOrder(orderId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartOrderMutationResult = NonNullable<Awaited<ReturnType<typeof startOrder>>>
+    export type StartOrderMutationBody = BodyType<StartOrderBody>
+    export type StartOrderMutationError = ErrorType<ErrorResult>
+
+    /**
+ * @summary Admin - start making an order with time estimate, email customer
+ */
+export const useStartOrder = <TError = ErrorType<ErrorResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startOrder>>, TError,{orderId: string;data: BodyType<StartOrderBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startOrder>>,
+        TError,
+        {orderId: string;data: BodyType<StartOrderBody>},
+        TContext
+      > => {
+      return useMutation(getStartOrderMutationOptions(options));
+    }
 
 export const getAdminLoginUrl = () => {
 

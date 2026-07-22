@@ -79,10 +79,11 @@ export default function Track() {
             <div className="space-y-3">
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                  <div 
-                    className="w-10 h-10 rounded-full shadow-inner border border-black/5" 
-                    style={{ backgroundColor: COLOR_MAP[item.color] || item.color }} 
-                  />
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    {item.colors.map((c: string, ci: number) => (
+                      <div key={ci} className="w-9 h-9 rounded-full shadow-inner border border-black/5" style={{ backgroundColor: COLOR_MAP[c] || c }} />
+                    ))}
+                  </div>
                   <span className="font-bold text-gray-800 flex-1 text-lg">{item.productName}</span>
                   <span className="text-teal-600 font-bold text-xl">${item.price}</span>
                 </div>

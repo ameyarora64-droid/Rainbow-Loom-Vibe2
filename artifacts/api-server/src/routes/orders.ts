@@ -6,6 +6,13 @@ import {
   GetOrderParams,
 } from "@workspace/api-zod";
 import crypto from "crypto";
+import {
+  sendEmail,
+  orderConfirmationEmail,
+  orderOnHoldEmail,
+  orderUnholdEmail,
+  orderStartedEmail,
+} from "../email.js";
 
 const router: IRouter = Router();
 
@@ -21,15 +28,24 @@ function serializeOrder(order: typeof ordersTable.$inferSelect) {
     id: order.id,
     orderNumber: order.orderNumber,
     customerName: order.customerName,
+    customerEmail: order.customerEmail,
     items: order.items as Array<{
       productId: string;
       productName: string;
-      color: string;
+      colors: string[];
+      pattern: string;
       price: number;
     }>,
     total: order.total,
+    status: order.status,
+    estimatedCompletion: order.estimatedCompletion ?? undefined,
     createdAt: order.createdAt.toISOString(),
   };
+}
+
+async function findOrder(orderId: string) {
+  const all = await db.select().from(ordersTable);
+  return all.find((o) => o.id === orderId || o.orderNumber === orderId) ?? null;
 }
 
 router.post("/admin/login", async (req, res): Promise<void> => {
@@ -56,13 +72,18 @@ router.post("/orders", async (req, res): Promise<void> => {
     return;
   }
 
-  const { customerName, items } = parsed.data;
-  if (!customerName || !items || items.length === 0) {
-    res.status(400).json({ error: "Name and items are required" });
+  const { customerName, customerEmail, items } = parsed.data as {
+    customerName: string;
+    customerEmail: string;
+    items: Array<{ productId: string; productName: string; colors: string[]; pattern: string; price: number }>;
+  };
+
+  if (!customerName || !customerEmail || !items || items.length === 0) {
+    res.status(400).json({ error: "Name, email, and items are required" });
     return;
   }
 
-  const total = items.reduce((sum: number, item: { price: number }) => sum + item.price, 0);
+  const total = items.reduce((sum, item) => sum + item.price, 0);
   const id = crypto.randomUUID();
   const orderNumber = generateOrderNumber();
 
@@ -72,10 +93,21 @@ router.post("/orders", async (req, res): Promise<void> => {
       id,
       orderNumber,
       customerName,
+      customerEmail,
       items,
       total,
+      status: "pending",
     })
     .returning();
+
+  // Send confirmation email (non-blocking)
+  const { subject, html } = orderConfirmationEmail({
+    customerName,
+    orderNumber,
+    items,
+    total,
+  });
+  sendEmail({ to: customerEmail, subject, html }).catch(console.error);
 
   res.status(201).json(serializeOrder(order));
 });
@@ -87,20 +119,90 @@ router.get("/orders/:orderId", async (req, res): Promise<void> => {
     return;
   }
 
-  // Allow lookup by orderId or orderNumber
-  const allOrders = await db.select().from(ordersTable);
-  const order = allOrders.find(
-    (o) =>
-      o.id === params.data.orderId ||
-      o.orderNumber === params.data.orderId
-  );
+  const order = await findOrder(params.data.orderId);
+  if (!order) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+  res.json(serializeOrder(order));
+});
 
+// PUT ON HOLD
+router.post("/orders/:orderId/hold", async (req, res): Promise<void> => {
+  const order = await findOrder(req.params.orderId);
   if (!order) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
 
-  res.json(serializeOrder(order));
+  const [updated] = await db
+    .update(ordersTable)
+    .set({ status: "on_hold" })
+    .where(eq(ordersTable.id, order.id))
+    .returning();
+
+  const { subject, html } = orderOnHoldEmail({
+    customerName: order.customerName,
+    orderNumber: order.orderNumber,
+  });
+  sendEmail({ to: order.customerEmail, subject, html }).catch(console.error);
+
+  res.json(serializeOrder(updated));
+});
+
+// UNHOLD
+router.post("/orders/:orderId/unhold", async (req, res): Promise<void> => {
+  const order = await findOrder(req.params.orderId);
+  if (!order) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(ordersTable)
+    .set({ status: "pending" })
+    .where(eq(ordersTable.id, order.id))
+    .returning();
+
+  const { subject, html } = orderUnholdEmail({
+    customerName: order.customerName,
+    orderNumber: order.orderNumber,
+  });
+  sendEmail({ to: order.customerEmail, subject, html }).catch(console.error);
+
+  res.json(serializeOrder(updated));
+});
+
+// START MAKING
+router.post("/orders/:orderId/start", async (req, res): Promise<void> => {
+  const order = await findOrder(req.params.orderId);
+  if (!order) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+
+  const { days = 0, hours = 0, minutes = 0 } = req.body ?? {};
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+  const estimatedLabel = parts.length > 0 ? parts.join(", ") : "very soon";
+
+  const [updated] = await db
+    .update(ordersTable)
+    .set({ status: "in_progress", estimatedCompletion: estimatedLabel })
+    .where(eq(ordersTable.id, order.id))
+    .returning();
+
+  const { subject, html } = orderStartedEmail({
+    customerName: order.customerName,
+    orderNumber: order.orderNumber,
+    estimatedLabel,
+  });
+  sendEmail({ to: order.customerEmail, subject, html }).catch(console.error);
+
+  res.json(serializeOrder(updated));
 });
 
 export default router;

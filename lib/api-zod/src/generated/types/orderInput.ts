@@ -9,5 +9,6 @@ import type { CartItem } from './cartItem';
 
 export interface OrderInput {
   customerName: string;
+  customerEmail: string;
   items: CartItem[];
 }

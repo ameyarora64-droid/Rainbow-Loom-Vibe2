@@ -27,22 +27,35 @@ export interface ColorAvailability {
   available: boolean;
 }
 
+export type CartItemPattern = typeof CartItemPattern[keyof typeof CartItemPattern];
+
+
+export const CartItemPattern = {
+  regular: 'regular',
+  dragon_scale: 'dragon_scale',
+  fish_scale: 'fish_scale',
+  double_fish_scale: 'double_fish_scale',
+} as const;
+
 export interface Product {
   id: string;
   name: string;
   price: number;
+  available: boolean;
   colors: ColorAvailability[];
 }
 
 export interface CartItem {
   productId: string;
   productName: string;
-  color: string;
+  colors: string[];
+  pattern: CartItemPattern;
   price: number;
 }
 
 export interface OrderInput {
   customerName: string;
+  customerEmail: string;
   items: CartItem[];
 }
 
@@ -50,13 +63,44 @@ export interface Order {
   id: string;
   orderNumber: string;
   customerName: string;
+  customerEmail: string;
   items: CartItem[];
   total: number;
+  status: string;
+  estimatedCompletion?: string;
   createdAt: string;
 }
 
 export interface ColorAvailabilityUpdate {
   colors: ColorAvailability[];
+}
+
+export interface ProductAvailableUpdate {
+  available: boolean;
+}
+
+export type GlobalColorUpdateColor = typeof GlobalColorUpdateColor[keyof typeof GlobalColorUpdateColor];
+
+
+export const GlobalColorUpdateColor = {
+  red: 'red',
+  orange: 'orange',
+  green: 'green',
+  blue: 'blue',
+  purple: 'purple',
+  pink: 'pink',
+  black: 'black',
+} as const;
+
+export interface GlobalColorUpdate {
+  color: GlobalColorUpdateColor;
+  available: boolean;
+}
+
+export interface StartOrderBody {
+  days: number;
+  hours: number;
+  minutes: number;
 }
 
 export interface AdminCredentials {
@@ -66,6 +110,10 @@ export interface AdminCredentials {
 export interface AdminToken {
   success: boolean;
   token: string;
+}
+
+export interface SuccessResult {
+  success: boolean;
 }
 
 export interface ErrorResult {

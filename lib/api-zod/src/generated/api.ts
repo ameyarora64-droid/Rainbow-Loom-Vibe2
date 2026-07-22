@@ -23,6 +23,7 @@ export const GetProductsResponseItem = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "price": zod.number(),
+  "available": zod.boolean(),
   "colors": zod.array(zod.object({
   "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
   "available": zod.boolean()
@@ -49,10 +50,47 @@ export const UpdateProductColorsResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "price": zod.number(),
+  "available": zod.boolean(),
   "colors": zod.array(zod.object({
   "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
   "available": zod.boolean()
 }))
+})
+
+
+/**
+ * @summary Admin - toggle a product available/unavailable
+ */
+export const UpdateProductAvailableParams = zod.object({
+  "productId": zod.coerce.string()
+})
+
+export const UpdateProductAvailableBody = zod.object({
+  "available": zod.boolean()
+})
+
+export const UpdateProductAvailableResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "price": zod.number(),
+  "available": zod.boolean(),
+  "colors": zod.array(zod.object({
+  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
+  "available": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Admin - enable or disable a color across ALL products
+ */
+export const UpdateGlobalColorBody = zod.object({
+  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
+  "available": zod.boolean()
+})
+
+export const UpdateGlobalColorResponse = zod.object({
+  "success": zod.boolean()
 })
 
 
@@ -63,13 +101,17 @@ export const GetOrdersResponseItem = zod.object({
   "id": zod.string(),
   "orderNumber": zod.string(),
   "customerName": zod.string(),
+  "customerEmail": zod.string(),
   "items": zod.array(zod.object({
   "productId": zod.string(),
   "productName": zod.string(),
-  "color": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
   "price": zod.number()
 })),
   "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
   "createdAt": zod.string()
 })
 export const GetOrdersResponse = zod.array(GetOrdersResponseItem)
@@ -80,10 +122,12 @@ export const GetOrdersResponse = zod.array(GetOrdersResponseItem)
  */
 export const CreateOrderBody = zod.object({
   "customerName": zod.string(),
+  "customerEmail": zod.string(),
   "items": zod.array(zod.object({
   "productId": zod.string(),
   "productName": zod.string(),
-  "color": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
   "price": zod.number()
 }))
 })
@@ -92,13 +136,17 @@ export const CreateOrderResponse = zod.object({
   "id": zod.string(),
   "orderNumber": zod.string(),
   "customerName": zod.string(),
+  "customerEmail": zod.string(),
   "items": zod.array(zod.object({
   "productId": zod.string(),
   "productName": zod.string(),
-  "color": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
   "price": zod.number()
 })),
   "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
   "createdAt": zod.string()
 })
 
@@ -114,13 +162,101 @@ export const GetOrderResponse = zod.object({
   "id": zod.string(),
   "orderNumber": zod.string(),
   "customerName": zod.string(),
+  "customerEmail": zod.string(),
   "items": zod.array(zod.object({
   "productId": zod.string(),
   "productName": zod.string(),
-  "color": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
   "price": zod.number()
 })),
   "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Admin - put an order on hold and email customer
+ */
+export const HoldOrderParams = zod.object({
+  "orderId": zod.coerce.string()
+})
+
+export const HoldOrderResponse = zod.object({
+  "id": zod.string(),
+  "orderNumber": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "items": zod.array(zod.object({
+  "productId": zod.string(),
+  "productName": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
+  "price": zod.number()
+})),
+  "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Admin - remove hold and email customer their order is back in progress
+ */
+export const UnholdOrderParams = zod.object({
+  "orderId": zod.coerce.string()
+})
+
+export const UnholdOrderResponse = zod.object({
+  "id": zod.string(),
+  "orderNumber": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "items": zod.array(zod.object({
+  "productId": zod.string(),
+  "productName": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
+  "price": zod.number()
+})),
+  "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Admin - start making an order with time estimate, email customer
+ */
+export const StartOrderParams = zod.object({
+  "orderId": zod.coerce.string()
+})
+
+export const StartOrderBody = zod.object({
+  "days": zod.number(),
+  "hours": zod.number(),
+  "minutes": zod.number()
+})
+
+export const StartOrderResponse = zod.object({
+  "id": zod.string(),
+  "orderNumber": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "items": zod.array(zod.object({
+  "productId": zod.string(),
+  "productName": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
+  "price": zod.number()
+})),
+  "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
   "createdAt": zod.string()
 })
 

@@ -22,6 +22,7 @@ async function getProductsWithColors() {
         id: product.id,
         name: product.name,
         price: product.price,
+        available: product.available,
         colors: colorRows.map((c) => ({
           color: c.color,
           available: c.available,
@@ -30,6 +31,25 @@ async function getProductsWithColors() {
     })
   );
   return result;
+}
+
+async function getProductWithColors(productId: string) {
+  const [product] = await db
+    .select()
+    .from(productsTable)
+    .where(eq(productsTable.id, productId));
+  if (!product) return null;
+  const colorRows = await db
+    .select()
+    .from(productColorsTable)
+    .where(eq(productColorsTable.productId, productId));
+  return {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    available: product.available,
+    colors: colorRows.map((c) => ({ color: c.color, available: c.available })),
+  };
 }
 
 router.get("/products", async (req, res): Promise<void> => {
@@ -50,11 +70,7 @@ router.patch("/products/:productId/colors", async (req, res): Promise<void> => {
     return;
   }
 
-  const [product] = await db
-    .select()
-    .from(productsTable)
-    .where(eq(productsTable.id, params.data.productId));
-
+  const product = await getProductWithColors(params.data.productId);
   if (!product) {
     res.status(404).json({ error: "Product not found" });
     return;
@@ -72,17 +88,54 @@ router.patch("/products/:productId/colors", async (req, res): Promise<void> => {
       );
   }
 
-  const updatedColors = await db
-    .select()
-    .from(productColorsTable)
-    .where(eq(productColorsTable.productId, params.data.productId));
+  const updated = await getProductWithColors(params.data.productId);
+  res.json(updated);
+});
 
-  res.json({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    colors: updatedColors.map((c) => ({ color: c.color, available: c.available })),
-  });
+// Toggle a product available / unavailable
+router.patch("/products/:productId/available", async (req, res): Promise<void> => {
+  const { productId } = req.params;
+  const { available } = req.body ?? {};
+
+  if (typeof available !== "boolean") {
+    res.status(400).json({ error: "available must be a boolean" });
+    return;
+  }
+
+  const [product] = await db
+    .select()
+    .from(productsTable)
+    .where(eq(productsTable.id, productId));
+
+  if (!product) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
+
+  await db
+    .update(productsTable)
+    .set({ available })
+    .where(eq(productsTable.id, productId));
+
+  const updated = await getProductWithColors(productId);
+  res.json(updated);
+});
+
+// Disable / enable a color globally across ALL products
+router.patch("/colors/global", async (req, res): Promise<void> => {
+  const { color, available } = req.body ?? {};
+
+  if (!COLORS.includes(color) || typeof available !== "boolean") {
+    res.status(400).json({ error: "Invalid color or available value" });
+    return;
+  }
+
+  await db
+    .update(productColorsTable)
+    .set({ available })
+    .where(eq(productColorsTable.color, color));
+
+  res.json({ success: true });
 });
 
 export { COLORS };

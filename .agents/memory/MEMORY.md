@@ -1,0 +1,3 @@
+- [Email setup](email-setup.md) — Resend for order emails; graceful no-op if RESEND_API_KEY not set
+- [Color/pattern selection](color-pattern.md) — CartItem uses colors[] + pattern enum; Fish Scale allows 1 or 3 only
+- [Admin order flow](admin-order-flow.md) — hold/unhold/start endpoints with email; lib rebuild required after orval codegen

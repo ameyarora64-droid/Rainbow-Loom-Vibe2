@@ -5,10 +5,12 @@
  * Rainbow Loom Vibe Store API
  * OpenAPI spec version: 0.1.0
  */
+import type { CartItemPattern } from './cartItemPattern';
 
 export interface CartItem {
   productId: string;
   productName: string;
-  color: string;
+  colors: string[];
+  pattern: CartItemPattern;
   price: number;
 }

@@ -74,6 +74,56 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResult"
 
+  /products/{productId}/available:
+    patch:
+      operationId: updateProductAvailable
+      tags: [products]
+      summary: Admin - toggle a product available/unavailable
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductAvailableUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
+  /colors/global:
+    patch:
+      operationId: updateGlobalColor
+      tags: [products]
+      summary: Admin - enable or disable a color across ALL products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlobalColorUpdate"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResult"
+
   /orders:
     get:
       operationId: getOrders
@@ -137,6 +187,87 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResult"
 
+  /orders/{orderId}/hold:
+    post:
+      operationId: holdOrder
+      tags: [orders]
+      summary: Admin - put an order on hold and email customer
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order put on hold
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
+  /orders/{orderId}/unhold:
+    post:
+      operationId: unholdOrder
+      tags: [orders]
+      summary: Admin - remove hold and email customer their order is back in progress
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order unholded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
+  /orders/{orderId}/start:
+    post:
+      operationId: startOrder
+      tags: [orders]
+      summary: Admin - start making an order with time estimate, email customer
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartOrderBody"
+      responses:
+        "200":
+          description: Order started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+
   /admin/login:
     post:
       operationId: adminLogin
@@ -184,6 +315,10 @@ components:
         - color
         - available
 
+    CartItemPattern:
+      type: string
+      enum: [regular, dragon_scale, fish_scale, double_fish_scale]
+
     Product:
       type: object
       properties:
@@ -193,6 +328,8 @@ components:
           type: string
         price:
           type: number
+        available:
+          type: boolean
         colors:
           type: array
           items:
@@ -201,6 +338,7 @@ components:
         - id
         - name
         - price
+        - available
         - colors
 
     CartItem:
@@ -210,14 +348,19 @@ components:
           type: string
         productName:
           type: string
-        color:
-          type: string
+        colors:
+          type: array
+          items:
+            type: string
+        pattern:
+          $ref: "#/components/schemas/CartItemPattern"
         price:
           type: number
       required:
         - productId
         - productName
-        - color
+        - colors
+        - pattern
         - price
 
     OrderInput:
@@ -225,12 +368,15 @@ components:
       properties:
         customerName:
           type: string
+        customerEmail:
+          type: string
         items:
           type: array
           items:
             $ref: "#/components/schemas/CartItem"
       required:
         - customerName
+        - customerEmail
         - items
 
     Order:
@@ -242,20 +388,28 @@ components:
           type: string
         customerName:
           type: string
+        customerEmail:
+          type: string
         items:
           type: array
           items:
             $ref: "#/components/schemas/CartItem"
         total:
           type: number
+        status:
+          type: string
+        estimatedCompletion:
+          type: string
         createdAt:
           type: string
       required:
         - id
         - orderNumber
         - customerName
+        - customerEmail
         - items
         - total
+        - status
         - createdAt
 
     ColorAvailabilityUpdate:
@@ -267,6 +421,40 @@ components:
             $ref: "#/components/schemas/ColorAvailability"
       required:
         - colors
+
+    ProductAvailableUpdate:
+      type: object
+      properties:
+        available:
+          type: boolean
+      required:
+        - available
+
+    GlobalColorUpdate:
+      type: object
+      properties:
+        color:
+          type: string
+          enum: [red, orange, green, blue, purple, pink, black]
+        available:
+          type: boolean
+      required:
+        - color
+        - available
+
+    StartOrderBody:
+      type: object
+      properties:
+        days:
+          type: integer
+        hours:
+          type: integer
+        minutes:
+          type: integer
+      required:
+        - days
+        - hours
+        - minutes
 
     AdminCredentials:
       type: object
@@ -286,6 +474,14 @@ components:
       required:
         - success
         - token
+
+    SuccessResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
 
     ErrorResult:
       type: object
