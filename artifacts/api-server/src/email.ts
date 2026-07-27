@@ -112,6 +112,22 @@ export function orderUnholdEmail(opts: {
   };
 }
 
+export function orderCompletedEmail(opts: {
+  customerName: string;
+  orderNumber: string;
+}) {
+  return {
+    subject: `🎀 Your order ${opts.orderNumber} is ready!`,
+    html: `
+<div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; background: #fffdf7; border-radius: 16px; padding: 32px; border: 2px solid #fce7f3;">
+  <h1 style="color: #ec4899; font-size: 28px;">Your order is ready! 🎀</h1>
+  <p style="color: #6b7280;">Hi <strong>${opts.customerName}</strong>,</p>
+  <p style="color: #6b7280;">We finished making your order <strong>${opts.orderNumber}</strong>! It's all done and ready for you. 🌈</p>
+  <p style="color: #9ca3af; font-size: 13px; margin-top: 24px;">Thank you so much for your order — we hope you love it!</p>
+</div>`,
+  };
+}
+
 export function orderStartedEmail(opts: {
   customerName: string;
   orderNumber: string;

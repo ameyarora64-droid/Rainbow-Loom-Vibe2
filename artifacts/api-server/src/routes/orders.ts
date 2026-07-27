@@ -12,6 +12,7 @@ import {
   orderOnHoldEmail,
   orderUnholdEmail,
   orderStartedEmail,
+  orderCompletedEmail,
 } from "../email.js";
 
 const router: IRouter = Router();
@@ -217,6 +218,12 @@ router.post("/orders/:orderId/complete", async (req, res): Promise<void> => {
     .set({ status: "completed" })
     .where(eq(ordersTable.id, order.id))
     .returning();
+
+  const { subject, html } = orderCompletedEmail({
+    customerName: order.customerName,
+    orderNumber: order.orderNumber,
+  });
+  sendEmail({ to: order.customerEmail, subject, html }).catch(console.error);
 
   res.json(serializeOrder(updated));
 });
