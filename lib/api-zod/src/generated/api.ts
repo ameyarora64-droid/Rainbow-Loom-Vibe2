@@ -9,92 +9,6 @@ import * as zod from 'zod';
 
 
 /**
- * @summary Health check
- */
-export const HealthCheckResponse = zod.object({
-  "status": zod.string()
-})
-
-
-/**
- * @summary Get all products with their color availability
- */
-export const GetProductsResponseItem = zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "price": zod.number(),
-  "available": zod.boolean(),
-  "colors": zod.array(zod.object({
-  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
-  "available": zod.boolean()
-}))
-})
-export const GetProductsResponse = zod.array(GetProductsResponseItem)
-
-
-/**
- * @summary Admin - update color availability for a product
- */
-export const UpdateProductColorsParams = zod.object({
-  "productId": zod.coerce.string()
-})
-
-export const UpdateProductColorsBody = zod.object({
-  "colors": zod.array(zod.object({
-  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
-  "available": zod.boolean()
-}))
-})
-
-export const UpdateProductColorsResponse = zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "price": zod.number(),
-  "available": zod.boolean(),
-  "colors": zod.array(zod.object({
-  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
-  "available": zod.boolean()
-}))
-})
-
-
-/**
- * @summary Admin - toggle a product available/unavailable
- */
-export const UpdateProductAvailableParams = zod.object({
-  "productId": zod.coerce.string()
-})
-
-export const UpdateProductAvailableBody = zod.object({
-  "available": zod.boolean()
-})
-
-export const UpdateProductAvailableResponse = zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "price": zod.number(),
-  "available": zod.boolean(),
-  "colors": zod.array(zod.object({
-  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
-  "available": zod.boolean()
-}))
-})
-
-
-/**
- * @summary Admin - enable or disable a color across ALL products
- */
-export const UpdateGlobalColorBody = zod.object({
-  "color": zod.enum(['red', 'orange', 'green', 'blue', 'purple', 'pink', 'black']),
-  "available": zod.boolean()
-})
-
-export const UpdateGlobalColorResponse = zod.object({
-  "success": zod.boolean()
-})
-
-
-/**
  * @summary Admin - get all orders
  */
 export const GetOrdersResponseItem = zod.object({
@@ -262,6 +176,32 @@ export const StartOrderResponse = zod.object({
 
 
 /**
+ * @summary Admin - mark an order as complete
+ */
+export const CompleteOrderParams = zod.object({
+  "orderId": zod.coerce.string()
+})
+
+export const CompleteOrderResponse = zod.object({
+  "id": zod.string(),
+  "orderNumber": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "items": zod.array(zod.object({
+  "productId": zod.string(),
+  "productName": zod.string(),
+  "colors": zod.array(zod.string()),
+  "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
+  "price": zod.number()
+})),
+  "total": zod.number(),
+  "status": zod.string(),
+  "estimatedCompletion": zod.string().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Admin login with passcode
  */
 export const AdminLoginBody = zod.object({
@@ -271,6 +211,104 @@ export const AdminLoginBody = zod.object({
 export const AdminLoginResponse = zod.object({
   "success": zod.boolean(),
   "token": zod.string()
+})
+
+
+/**
+ * @summary Get all products
+ */
+export const GetProductsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "price": zod.number(),
+  "available": zod.boolean(),
+  "colors": zod.array(zod.object({
+  "color": zod.string().optional(),
+  "available": zod.boolean().optional()
+}))
+})
+export const GetProductsResponse = zod.array(GetProductsResponseItem)
+
+
+/**
+ * @summary Admin - update available colors for a product
+ */
+export const UpdateProductColorsParams = zod.object({
+  "productId": zod.coerce.string()
+})
+
+export const UpdateProductColorsBody = zod.object({
+  "colors": zod.array(zod.object({
+  "color": zod.string().optional(),
+  "available": zod.boolean().optional()
+}))
+})
+
+export const UpdateProductColorsResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "price": zod.number(),
+  "available": zod.boolean(),
+  "colors": zod.array(zod.object({
+  "color": zod.string().optional(),
+  "available": zod.boolean().optional()
+}))
+})
+
+
+/**
+ * @summary Admin - toggle product available/unavailable
+ */
+export const UpdateProductAvailableParams = zod.object({
+  "productId": zod.coerce.string()
+})
+
+export const UpdateProductAvailableBody = zod.object({
+  "available": zod.boolean()
+})
+
+export const UpdateProductAvailableResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "price": zod.number(),
+  "available": zod.boolean(),
+  "colors": zod.array(zod.object({
+  "color": zod.string().optional(),
+  "available": zod.boolean().optional()
+}))
+})
+
+
+/**
+ * @summary Get whether the store is open or closed
+ */
+export const GetStoreStatusResponse = zod.object({
+  "open": zod.boolean()
+})
+
+
+/**
+ * @summary Admin - open or close the store
+ */
+export const UpdateStoreStatusBody = zod.object({
+  "open": zod.boolean()
+})
+
+export const UpdateStoreStatusResponse = zod.object({
+  "open": zod.boolean()
+})
+
+
+/**
+ * @summary Admin - enable/disable a color across all products
+ */
+export const UpdateGlobalColorBody = zod.object({
+  "color": zod.string(),
+  "available": zod.boolean()
+})
+
+export const UpdateGlobalColorResponse = zod.object({
+  "success": zod.boolean().optional()
 })
 
 

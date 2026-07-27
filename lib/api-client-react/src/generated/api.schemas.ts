@@ -5,28 +5,6 @@
  * Rainbow Loom Vibe Store API
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
-
-export type ColorAvailabilityColor = typeof ColorAvailabilityColor[keyof typeof ColorAvailabilityColor];
-
-
-export const ColorAvailabilityColor = {
-  red: 'red',
-  orange: 'orange',
-  green: 'green',
-  blue: 'blue',
-  purple: 'purple',
-  pink: 'pink',
-  black: 'black',
-} as const;
-
-export interface ColorAvailability {
-  color: ColorAvailabilityColor;
-  available: boolean;
-}
-
 export type CartItemPattern = typeof CartItemPattern[keyof typeof CartItemPattern];
 
 
@@ -37,26 +15,12 @@ export const CartItemPattern = {
   double_fish_scale: 'double_fish_scale',
 } as const;
 
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  available: boolean;
-  colors: ColorAvailability[];
-}
-
 export interface CartItem {
   productId: string;
   productName: string;
   colors: string[];
   pattern: CartItemPattern;
   price: number;
-}
-
-export interface OrderInput {
-  customerName: string;
-  customerEmail: string;
-  items: CartItem[];
 }
 
 export interface Order {
@@ -71,30 +35,14 @@ export interface Order {
   createdAt: string;
 }
 
-export interface ColorAvailabilityUpdate {
-  colors: ColorAvailability[];
+export interface OrderInput {
+  customerName: string;
+  customerEmail: string;
+  items: CartItem[];
 }
 
-export interface ProductAvailableUpdate {
-  available: boolean;
-}
-
-export type GlobalColorUpdateColor = typeof GlobalColorUpdateColor[keyof typeof GlobalColorUpdateColor];
-
-
-export const GlobalColorUpdateColor = {
-  red: 'red',
-  orange: 'orange',
-  green: 'green',
-  blue: 'blue',
-  purple: 'purple',
-  pink: 'pink',
-  black: 'black',
-} as const;
-
-export interface GlobalColorUpdate {
-  color: GlobalColorUpdateColor;
-  available: boolean;
+export interface ErrorResult {
+  error: string;
 }
 
 export interface StartOrderBody {
@@ -112,11 +60,42 @@ export interface AdminToken {
   token: string;
 }
 
-export interface SuccessResult {
-  success: boolean;
+export type ProductColorsItem = {
+  color?: string;
+  available?: boolean;
+};
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  available: boolean;
+  colors: ProductColorsItem[];
 }
 
-export interface ErrorResult {
-  error: string;
+export type UpdateProductColorsBodyColorsItem = {
+  color?: string;
+  available?: boolean;
+};
+
+export interface UpdateProductColorsBody {
+  colors: UpdateProductColorsBodyColorsItem[];
 }
+
+export interface UpdateProductAvailableBody {
+  available: boolean;
+}
+
+export interface StoreStatus {
+  open: boolean;
+}
+
+export interface UpdateGlobalColorBody {
+  color: string;
+  available: boolean;
+}
+
+export type UpdateGlobalColor200 = {
+  success?: boolean;
+};
 

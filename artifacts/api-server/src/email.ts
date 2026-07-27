@@ -1,7 +1,8 @@
 /**
- * Email helper — uses Resend when RESEND_API_KEY is set,
- * otherwise logs to console so the app works without an API key.
+ * Email helper — uses Gmail SMTP (nodemailer) when GMAIL_USER + GMAIL_APP_PASSWORD are set,
+ * otherwise logs to console so the app works without credentials.
  */
+import nodemailer from "nodemailer";
 
 interface SendEmailOptions {
   to: string;
@@ -10,35 +11,30 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail(opts: SendEmailOptions): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "Rainbow Loom Vibe Store <orders@rainbowloomvibe.com>";
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
 
-  if (!apiKey) {
+  if (!gmailUser || !gmailPass) {
     console.log(
-      `[EMAIL - no RESEND_API_KEY set] To: ${opts.to} | Subject: ${opts.subject}\n${opts.html}`
+      `[EMAIL - no Gmail credentials set] To: ${opts.to} | Subject: ${opts.subject}`
     );
     return;
   }
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [opts.to],
-      subject: opts.subject,
-      html: opts.html,
-    }),
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: gmailUser, pass: gmailPass },
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    console.error(`[EMAIL] Resend error ${res.status}: ${text}`);
-  } else {
+  try {
+    await transporter.sendMail({
+      from: `"Rainbow Loom Vibe Store" <${gmailUser}>`,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+    });
     console.log(`[EMAIL] Sent to ${opts.to}: ${opts.subject}`);
+  } catch (err) {
+    console.error(`[EMAIL] Gmail send error:`, err);
   }
 }
 

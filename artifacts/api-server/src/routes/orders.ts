@@ -172,7 +172,6 @@ router.post("/orders/:orderId/unhold", async (req, res): Promise<void> => {
 
   res.json(serializeOrder(updated));
 });
-
 // START MAKING
 router.post("/orders/:orderId/start", async (req, res): Promise<void> => {
   const order = await findOrder(req.params.orderId);
@@ -204,5 +203,23 @@ router.post("/orders/:orderId/start", async (req, res): Promise<void> => {
 
   res.json(serializeOrder(updated));
 });
+// COMPLETE ORDER
+router.post("/orders/:orderId/complete", async (req, res): Promise<void> => {
+  const order = await findOrder(req.params.orderId);
+
+  if (!order) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(ordersTable)
+    .set({ status: "completed" })
+    .where(eq(ordersTable.id, order.id))
+    .returning();
+
+  res.json(serializeOrder(updated));
+});
+
 
 export default router;

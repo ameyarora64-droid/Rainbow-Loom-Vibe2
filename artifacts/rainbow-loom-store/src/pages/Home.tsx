@@ -1,8 +1,11 @@
-import { useGetProducts } from '@workspace/api-client-react';
+import { useGetProducts, useGetStoreStatus } from '@workspace/api-client-react';
 import ProductCard from '../components/ProductCard';
 
 export default function Home() {
   const { data: products, isLoading, isError } = useGetProducts();
+  const { data: storeStatus, isLoading: statusLoading } = useGetStoreStatus();
+
+  const storeClosed = !statusLoading && storeStatus?.open === false;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 md:py-20">
@@ -15,7 +18,19 @@ export default function Home() {
         </p>
       </div>
 
-      {isLoading ? (
+      {storeClosed ? (
+        <div className="max-w-lg mx-auto text-center">
+          <div className="bg-white rounded-3xl shadow-sm border-2 border-pink-100 p-12">
+            <div className="text-7xl mb-6">🌙</div>
+            <h2 className="font-display text-4xl text-gray-700 mb-4">
+              We're Closed Right Now!
+            </h2>
+            <p className="text-gray-400 text-lg leading-relaxed">
+              The store is taking a little break. Check back soon — we'll be open again before you know it! 🌈
+            </p>
+          </div>
+        </div>
+      ) : isLoading ? (
         <div className="flex justify-center py-20">
           <div className="animate-spin w-16 h-16 border-8 border-pink-200 border-t-pink-500 rounded-full"></div>
         </div>

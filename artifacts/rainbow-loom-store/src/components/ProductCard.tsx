@@ -189,13 +189,13 @@ export default function ProductCard({ product }: { product: Product }) {
             <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Colors</p>
             <div className="grid grid-cols-4 gap-3">
               {product.colors.map(c => {
-                const bg = COLOR_MAP[c.color] || c.color;
-                const isSelected = selectedColors.includes(c.color);
+                const bg = COLOR_MAP[c.color!] || c.color!;
+                const isSelected = selectedColors.includes(c.color!);
                 return (
                   <button
                     key={c.color}
                     disabled={!c.available}
-                    onClick={() => handleColorClick(c.color)}
+                    onClick={() => handleColorClick(c.color!)}
                     className={`relative flex flex-col items-center p-2 rounded-2xl transition-all ${
                       !c.available
                         ? 'opacity-40 cursor-not-allowed grayscale'
