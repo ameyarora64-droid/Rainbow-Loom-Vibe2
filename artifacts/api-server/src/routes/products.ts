@@ -1,14 +1,13 @@
 import { Router, type IRouter } from "express";
 import { eq, and } from "drizzle-orm";
-import { db, productsTable, productColorsTable } from "@workspace/db";
+import { db, productsTable, productColorsTable, colorsTable } from "@workspace/db";
 import {
   UpdateProductColorsBody,
   UpdateProductColorsParams,
 } from "@workspace/api-zod";
+import { randomUUID } from "crypto";
 
 const router: IRouter = Router();
-
-const COLORS = ["red", "orange", "green", "blue", "purple", "pink", "black"];
 
 async function getProductsWithColors() {
   const products = await db.select().from(productsTable);
