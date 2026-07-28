@@ -21,7 +21,8 @@ export const GetOrdersResponseItem = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),
@@ -42,7 +43,8 @@ export const CreateOrderBody = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 }))
 })
 
@@ -56,7 +58,8 @@ export const CreateOrderResponse = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),
@@ -82,7 +85,8 @@ export const GetOrderResponse = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),
@@ -108,7 +112,8 @@ export const HoldOrderResponse = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),
@@ -134,7 +139,8 @@ export const UnholdOrderResponse = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),
@@ -166,7 +172,8 @@ export const StartOrderResponse = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),
@@ -192,7 +199,8 @@ export const CompleteOrderResponse = zod.object({
   "productName": zod.string(),
   "colors": zod.array(zod.string()),
   "pattern": zod.enum(['regular', 'dragon_scale', 'fish_scale', 'double_fish_scale']),
-  "price": zod.number()
+  "price": zod.number(),
+  "petType": zod.enum(['dog', 'cat']).optional()
 })),
   "total": zod.number(),
   "status": zod.string(),

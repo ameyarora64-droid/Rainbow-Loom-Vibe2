@@ -15,12 +15,21 @@ export const CartItemPattern = {
   double_fish_scale: 'double_fish_scale',
 } as const;
 
+export type CartItemPetType = typeof CartItemPetType[keyof typeof CartItemPetType];
+
+
+export const CartItemPetType = {
+  dog: 'dog',
+  cat: 'cat',
+} as const;
+
 export interface CartItem {
   productId: string;
   productName: string;
   colors: string[];
   pattern: CartItemPattern;
   price: number;
+  petType?: CartItemPetType;
 }
 
 export interface Order {

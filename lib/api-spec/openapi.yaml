@@ -377,6 +377,11 @@ components:
           $ref: "#/components/schemas/CartItemPattern"
         price:
           type: number
+        petType:
+          type: string
+          enum:
+            - dog
+            - cat
       required:
         - productId
         - productName
