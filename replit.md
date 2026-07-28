@@ -1,6 +1,6 @@
-# [Project name]
+# Rainbow Loom Vibe Store
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A customized rainbow loom bracelet store where customers can browse products, place orders, and track them — with an admin dashboard to manage products and orders.
 
 ## Run & Operate
 
@@ -9,7 +9,10 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — Postgres connection string (auto-managed by Replit)
+- Required env: `PORT` — set to `8000` for the API server (already configured)
+- Required env: `BASE_PATH` — set to `/` for the frontend (already configured)
+- Optional secret: `RESEND_API_KEY` — enables order confirmation emails via Resend; gracefully no-ops if absent
 
 ## Stack
 
@@ -22,7 +25,12 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/rainbow-loom-store/` — React + Vite frontend (port 5000)
+- `artifacts/api-server/` — Express 5 API server (port 8000); Vite dev proxy forwards `/api/*` from port 5000 → 8000
+- `lib/db/` — Drizzle ORM schema (source of truth for DB tables)
+- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for API contracts)
+- `lib/api-client-react/src/generated/` — auto-generated React Query hooks (run `pnpm --filter @workspace/api-spec run codegen` to regenerate)
+- `lib/api-zod/` — auto-generated Zod schemas
 
 ## Architecture decisions
 
